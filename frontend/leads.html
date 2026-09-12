@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise CRM - Leads</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="crm-layout">
+
+    <aside class="sidebar">
+
+        <h2>Enterprise CRM</h2>
+        <p class="sidebar-user">CRM Management</p>
+
+        <nav>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="customers.html">Customers</a>
+            <a href="leads.html" class="active">Leads</a>
+            <a href="deals.html">Deals</a>
+            <a href="activities.html">Activity Logs</a>
+        </nav>
+
+        <button class="logout-btn" onclick="logout()">Logout</button>
+
+    </aside>
+
+
+    <main class="main-content">
+
+        <div class="dashboard-header">
+            <h1>Leads</h1>
+            <p>Track and manage potential customers</p>
+        </div>
+
+
+        <!-- ADD LEAD -->
+
+        <div class="card" id="addLeadCard">
+
+            <h2>Add Lead</h2>
+
+            <form id="leadForm">
+
+                <label>Name</label>
+
+                <input
+                    type="text"
+                    id="leadName"
+                    placeholder="Enter lead name"
+                    required
+                >
+
+
+                <label>Email</label>
+
+                <input
+                    type="email"
+                    id="leadEmail"
+                    placeholder="Enter lead email"
+                    required
+                >
+
+
+                <label>Phone</label>
+
+                <input
+                    type="text"
+                    id="leadPhone"
+                    placeholder="Enter phone number"
+                    required
+                >
+
+
+                <label>Company</label>
+
+                <input
+                    type="text"
+                    id="leadCompany"
+                    placeholder="Enter company name"
+                    required
+                >
+
+
+                <label>Lead Status</label>
+
+                <select id="leadStatus">
+
+                    <option value="New">New</option>
+                    <option value="Contacted">Contacted</option>
+                    <option value="Qualified">Qualified</option>
+                    <option value="Converted">Converted</option>
+
+                </select>
+
+
+                <label>Deal Value</label>
+
+                <input
+                    type="number"
+                    id="leadDealValue"
+                    placeholder="Enter deal value"
+                    min="0"
+                    value="0"
+                    required
+                >
+
+
+                <button type="submit">
+                    Add Lead
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- LEAD LIST -->
+
+        <div class="card">
+
+            <h2>Lead List</h2>
+
+            <div id="leadList">
+                Loading leads...
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<script>
+
+const userId = localStorage.getItem("userId");
+const userRole = localStorage.getItem("userRole");
+
+
+/* ================= LOGIN CHECK ================= */
+
+if (!userId) {
+
+    window.location.href = "index.html";
+
+}
+
+
+/* ================= ADD LEAD ================= */
+
+document.getElementById("leadForm").addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+
+        const name =
+            document.getElementById("leadName").value;
+
+        const email =
+            document.getElementById("leadEmail").value;
+
+        const phone =
+            document.getElementById("leadPhone").value;
+
+        const company =
+            document.getElementById("leadCompany").value;
+
+        const status =
+            document.getElementById("leadStatus").value;
+
+        const dealValue =
+            Number(
+                document.getElementById("leadDealValue").value
+            );
+
+
+        try {
+
+            const response = await fetch(
+                "http://localhost:5000/api/leads",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        name: name,
+                        email: email,
+                        phone: phone,
+                        company: company,
+                        status: status,
+                        dealValue: dealValue
+                    })
+                }
+            );
+
+
+            const data = await response.json();
+
+
+            if (response.ok) {
+
+                alert("Lead added successfully!");
+
+                document.getElementById("leadForm").reset();
+
+                loadLeads();
+
+            } else {
+
+                alert(
+                    data.message ||
+                    "Failed to add lead"
+                );
+
+            }
+
+        } catch (error) {
+
+            console.log("Add Lead Error:", error);
+
+            alert(
+                "Server error. Please check the backend."
+            );
+
+        }
+
+    }
+);
+
+
+/* ================= LOAD LEADS ================= */
+
+async function loadLeads() {
+
+    try {
+
+        const response = await fetch(
+            "http://localhost:5000/api/leads"
+        );
+
+
+        const leads = await response.json();
+
+        const leadList =
+            document.getElementById("leadList");
+
+
+        if (leads.length === 0) {
+
+            leadList.innerHTML =
+                "<p>No leads found.</p>";
+
+            return;
+
+        }
+
+
+        leadList.innerHTML = "";
+
+
+        leads.forEach(function(lead) {
+
+            const leadDiv =
+                document.createElement("div");
+
+            leadDiv.className = "lead";
+
+
+            let buttons = "";
+
+
+            /*
+                ADMIN:
+                Edit + Delete
+
+                USER:
+                Edit only
+            */
+
+            buttons = `
+
+                <button
+                    onclick="editLead(
+                        '${lead._id}',
+                        '${lead.name}',
+                        '${lead.email}',
+                        '${lead.phone}',
+                        '${lead.company}',
+                        '${lead.status}',
+                        '${lead.dealValue || 0}'
+                    )">
+                    Edit
+                </button>
+
+            `;
+
+
+            if (userRole === "Admin") {
+
+                buttons += `
+
+                    <button
+                        onclick="deleteLead('${lead._id}')">
+                        Delete
+                    </button>
+
+                `;
+
+            }
+
+
+            leadDiv.innerHTML = `
+
+                <h3>${lead.name}</h3>
+
+                <p>
+                    <strong>Email:</strong>
+                    ${lead.email}
+                </p>
+
+                <p>
+                    <strong>Phone:</strong>
+                    ${lead.phone}
+                </p>
+
+                <p>
+                    <strong>Company:</strong>
+                    ${lead.company}
+                </p>
+
+                <p>
+                    <strong>Status:</strong>
+                    ${lead.status}
+                </p>
+
+                <p>
+                    <strong>Deal Value:</strong>
+                    ₹${lead.dealValue || 0}
+                </p>
+
+                ${buttons}
+
+            `;
+
+
+            leadList.appendChild(leadDiv);
+
+        });
+
+
+    } catch (error) {
+
+        console.log("Load Leads Error:", error);
+
+        document.getElementById("leadList").innerHTML =
+            "<p>Unable to load leads. Please check the backend.</p>";
+
+    }
+
+}
+
+
+/* ================= EDIT LEAD ================= */
+
+async function editLead(
+    id,
+    oldName,
+    oldEmail,
+    oldPhone,
+    oldCompany,
+    oldStatus,
+    oldDealValue
+) {
+
+
+    const name = prompt(
+        "Enter lead name:",
+        oldName
+    );
+
+    if (name === null) {
+        return;
+    }
+
+
+    const email = prompt(
+        "Enter lead email:",
+        oldEmail
+    );
+
+    if (email === null) {
+        return;
+    }
+
+
+    const phone = prompt(
+        "Enter lead phone:",
+        oldPhone
+    );
+
+    if (phone === null) {
+        return;
+    }
+
+
+    const company = prompt(
+        "Enter company name:",
+        oldCompany
+    );
+
+    if (company === null) {
+        return;
+    }
+
+
+    const status = prompt(
+        "Enter status (New, Contacted, Qualified, Converted):",
+        oldStatus
+    );
+
+    if (status === null) {
+        return;
+    }
+
+
+    const validStatuses = [
+        "New",
+        "Contacted",
+        "Qualified",
+        "Converted"
+    ];
+
+
+    if (!validStatuses.includes(status)) {
+
+        alert(
+            "Invalid status. Please use a valid lead status."
+        );
+
+        return;
+
+    }
+
+
+    const dealValue = prompt(
+        "Enter deal value:",
+        oldDealValue
+    );
+
+    if (dealValue === null) {
+        return;
+    }
+
+
+    try {
+
+        const response = await fetch(
+            "http://localhost:5000/api/leads/" + id,
+            {
+                method: "PUT",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    company: company,
+                    status: status,
+                    dealValue: Number(dealValue)
+                })
+            }
+        );
+
+
+        const data = await response.json();
+
+
+        if (response.ok) {
+
+            alert("Lead updated successfully!");
+
+            loadLeads();
+
+        } else {
+
+            alert(
+                data.message ||
+                "Failed to update lead"
+            );
+
+        }
+
+    } catch (error) {
+
+        console.log("Edit Lead Error:", error);
+
+        alert(
+            "Server error. Please check the backend."
+        );
+
+    }
+
+}
+
+
+/* ================= DELETE LEAD ================= */
+
+async function deleteLead(id) {
+
+
+    /*
+        Only Admin can delete.
+    */
+
+    if (userRole !== "Admin") {
+
+        alert("Access denied. Admin only.");
+
+        return;
+
+    }
+
+
+    const confirmDelete =
+        confirm(
+            "Are you sure you want to delete this lead?"
+        );
+
+
+    if (!confirmDelete) {
+        return;
+    }
+
+
+    try {
+
+        const response = await fetch(
+            "http://localhost:5000/api/leads/" + id,
+            {
+                method: "DELETE"
+            }
+        );
+
+
+        const data = await response.json();
+
+
+        if (response.ok) {
+
+            alert("Lead deleted successfully!");
+
+            loadLeads();
+
+        } else {
+
+            alert(
+                data.message ||
+                "Failed to delete lead"
+            );
+
+        }
+
+    } catch (error) {
+
+        console.log("Delete Lead Error:", error);
+
+        alert(
+            "Server error. Please check the backend."
+        );
+
+    }
+
+}
+
+
+/* ================= LOGOUT ================= */
+
+function logout() {
+
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("userRole");
+
+    window.location.href = "index.html";
+
+}
+
+
+loadLeads();
+
+</script>
+
+</body>
+
+</html>

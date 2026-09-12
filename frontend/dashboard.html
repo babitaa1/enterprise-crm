@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Enterprise CRM - Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+    <div class="crm-layout">
+
+
+        <!-- ================= SIDEBAR ================= -->
+
+        <aside class="sidebar">
+
+            <h2>Enterprise CRM</h2>
+
+            <p class="sidebar-user">
+                CRM Management
+            </p>
+
+
+            <nav>
+
+                <a href="dashboard.html" class="active">
+                    Dashboard
+                </a>
+
+                <a href="customers.html">
+                    Customers
+                </a>
+
+                <a href="leads.html">
+                    Leads
+                </a>
+
+                <a href="deals.html">
+                    Deals
+                </a>
+
+                <a href="activities.html">
+                    Activity Logs
+                </a>
+
+            </nav>
+
+
+            <button
+                class="logout-btn"
+                onclick="logout()"
+            >
+                Logout
+            </button>
+
+        </aside>
+
+
+        <!-- ================= MAIN CONTENT ================= -->
+
+        <main class="main-content">
+
+
+            <!-- HEADER -->
+
+            <div class="dashboard-header">
+
+                <div>
+
+                    <h1>Dashboard</h1>
+
+                    <p>
+                        Welcome back,
+                        <strong id="userName">
+                            User
+                        </strong>
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================= STATISTICS ================= -->
+
+            <div class="stats-grid">
+
+
+                <div class="stat-card">
+
+                    <h3>Total Customers</h3>
+
+                    <p id="totalCustomers">
+                        0
+                    </p>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <h3>Total Leads</h3>
+
+                    <p id="totalLeads">
+                        0
+                    </p>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <h3>Total Deals</h3>
+
+                    <p id="totalDeals">
+                        0
+                    </p>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <h3>Total Deal Value</h3>
+
+                    <p id="totalDealValue">
+                        ₹0
+                    </p>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <h3>Closed Won</h3>
+
+                    <p id="closedWon">
+                        0
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- ================= QUICK ACTIONS ================= -->
+
+            <div class="dashboard-section">
+
+                <h2>Quick Actions</h2>
+
+
+                <div class="quick-actions">
+
+
+                    <a href="customers.html" class="action-card">
+
+                        <h3>Customers</h3>
+
+                        <p>
+                            Manage customer information
+                        </p>
+
+                    </a>
+
+
+                    <a href="leads.html" class="action-card">
+
+                        <h3>Leads</h3>
+
+                        <p>
+                            Track and manage leads
+                        </p>
+
+                    </a>
+
+
+                    <a href="deals.html" class="action-card">
+
+                        <h3>Deals</h3>
+
+                        <p>
+                            Manage sales pipeline
+                        </p>
+
+                    </a>
+
+
+                    <a href="activities.html" class="action-card">
+
+                        <h3>Activities</h3>
+
+                        <p>
+                            Track customer activities
+                        </p>
+
+                    </a>
+
+
+                </div>
+
+            </div>
+
+
+            <!-- ================= SYSTEM INFORMATION ================= -->
+
+            <div class="dashboard-section">
+
+                <h2>CRM Overview</h2>
+
+                <div class="overview-card">
+
+                    <p>
+                        Enterprise CRM helps manage customers,
+                        leads, deals and sales activities from
+                        one centralized system.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+        </main>
+
+    </div>
+
+
+    <script>
+
+        // Display logged-in user's name
+
+        const userName =
+            localStorage.getItem("userName");
+
+        const userRole =
+            localStorage.getItem("userRole");
+
+
+        if (!userName) {
+
+            window.location.href =
+                "index.html";
+
+        } else {
+
+            document.getElementById("userName").textContent =
+                userName + " (" + userRole + ")";
+
+        }
+
+
+        // ================= LOAD DASHBOARD =================
+
+        async function loadDashboard() {
+
+            try {
+
+
+                // Customers
+
+                const customerResponse =
+                    await fetch(
+                        "http://localhost:5000/api/customers"
+                    );
+
+                const customers =
+                    await customerResponse.json();
+
+
+                // Leads
+
+                const leadResponse =
+                    await fetch(
+                        "http://localhost:5000/api/leads"
+                    );
+
+                const leads =
+                    await leadResponse.json();
+
+
+                // Deals
+
+                const dealResponse =
+                    await fetch(
+                        "http://localhost:5000/api/deals"
+                    );
+
+                const deals =
+                    await dealResponse.json();
+
+
+                // Total Customers
+
+                document.getElementById(
+                    "totalCustomers"
+                ).textContent =
+                    customers.length;
+
+
+                // Total Leads
+
+                document.getElementById(
+                    "totalLeads"
+                ).textContent =
+                    leads.length;
+
+
+                // Total Deals
+
+                document.getElementById(
+                    "totalDeals"
+                ).textContent =
+                    deals.length;
+
+
+                // Total Deal Value
+
+                let totalValue = 0;
+
+
+                deals.forEach(function(deal) {
+
+                    totalValue +=
+                        Number(deal.value) || 0;
+
+                });
+
+
+                document.getElementById(
+                    "totalDealValue"
+                ).textContent =
+                    "₹" + totalValue;
+
+
+                // Closed Won
+
+                const closedWonDeals =
+                    deals.filter(function(deal) {
+
+                        return deal.stage === "Closed Won";
+
+                    });
+
+
+                document.getElementById(
+                    "closedWon"
+                ).textContent =
+                    closedWonDeals.length;
+
+
+            } catch (error) {
+
+                console.log(
+                    "Dashboard Error:",
+                    error
+                );
+
+            }
+
+        }
+
+
+        // ================= LOGOUT =================
+
+        function logout() {
+
+            localStorage.removeItem("userId");
+
+            localStorage.removeItem("userName");
+
+            localStorage.removeItem("userRole");
+
+            window.location.href =
+                "index.html";
+
+        }
+
+
+        loadDashboard();
+
+    </script>
+
+</body>
+
+</html>

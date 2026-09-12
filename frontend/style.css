@@ -1,0 +1,432 @@
+/* ================= GENERAL ================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    color: #222;
+}
+
+
+/* ================= AUTH PAGES ================= */
+
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.auth-card {
+    width: 400px;
+    background: white;
+    padding: 35px;
+    border-radius: 12px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
+}
+
+.auth-card h1 {
+    text-align: center;
+    margin: 0;
+}
+
+.auth-card h2 {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.auth-subtitle {
+    text-align: center;
+    color: #666;
+    margin-top: 8px;
+    margin-bottom: 25px;
+}
+
+.auth-card label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.auth-card input,
+.auth-card select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d5d9df;
+    border-radius: 7px;
+    font-size: 14px;
+}
+
+.auth-card input:focus,
+.auth-card select:focus {
+    outline: none;
+    border-color: #555;
+}
+
+.auth-card button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 22px;
+    border: none;
+    border-radius: 7px;
+    background: #222;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.auth-card button:hover {
+    background: #444;
+}
+
+.auth-link {
+    text-align: center;
+    margin-top: 20px;
+    color: #666;
+    font-size: 14px;
+}
+
+.auth-link a {
+    color: #222;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.auth-link a:hover {
+    text-decoration: underline;
+}
+
+
+/* ================= CRM LAYOUT ================= */
+
+.crm-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+
+/* ================= SIDEBAR ================= */
+
+.sidebar {
+    width: 220px;
+    min-height: 100vh;
+    background: #222;
+    color: white;
+    padding: 25px 15px;
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+
+.sidebar h2 {
+    margin: 0;
+    padding: 0 10px;
+    font-size: 21px;
+}
+
+.sidebar-user {
+    color: #aaa;
+    font-size: 13px;
+    padding: 0 10px;
+    margin-bottom: 30px;
+}
+
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar nav a {
+    color: #ddd;
+    text-decoration: none;
+    padding: 12px 10px;
+    margin-bottom: 5px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.sidebar nav a:hover {
+    background: #444;
+    color: white;
+}
+
+.sidebar nav a.active {
+    background: #444;
+    color: white;
+    font-weight: bold;
+}
+
+.logout-btn {
+    width: calc(100% - 20px);
+    margin: 30px 10px 0;
+    padding: 11px;
+    border: 1px solid #666;
+    border-radius: 6px;
+    background: transparent;
+    color: white;
+    cursor: pointer;
+}
+
+.logout-btn:hover {
+    background: #444;
+}
+
+
+/* ================= MAIN CONTENT ================= */
+
+.main-content {
+    margin-left: 220px;
+    width: calc(100% - 220px);
+    padding: 30px;
+    max-width: 1250px;
+}
+
+.dashboard-header {
+    background: white;
+    padding: 22px 25px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.dashboard-header h1 {
+    margin: 0 0 7px;
+    font-size: 28px;
+}
+
+.dashboard-header p {
+    margin: 0;
+    color: #666;
+}
+
+
+/* ================= STATISTICS ================= */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.stat-card h3 {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+    font-weight: normal;
+}
+
+.stat-card p {
+    margin: 12px 0 0;
+    font-size: 27px;
+    font-weight: bold;
+}
+
+
+/* ================= DASHBOARD SECTIONS ================= */
+
+.dashboard-section {
+    margin-top: 25px;
+}
+
+.dashboard-section h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+
+/* ================= QUICK ACTIONS ================= */
+
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.action-card {
+    display: block;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #222;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.action-card:hover {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.action-card h3 {
+    margin: 0 0 8px;
+}
+
+.action-card p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+
+/* ================= OVERVIEW ================= */
+
+.overview-card {
+    background: white;
+    padding: 22px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.overview-card p {
+    margin: 0;
+    color: #555;
+    line-height: 1.6;
+}
+
+
+/* ================= NORMAL FORMS ================= */
+
+.card {
+    background: white;
+    padding: 25px;
+    margin: 25px auto;
+    max-width: 850px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.card h2 {
+    margin-top: 0;
+}
+
+.card input,
+.card select {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border: 1px solid #d5d9df;
+    border-radius: 7px;
+}
+
+.card button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 7px;
+    background: #222;
+    color: white;
+    cursor: pointer;
+}
+
+
+/* ================= LIST ITEMS ================= */
+
+.customer,
+.lead,
+.deal {
+    border-bottom: 1px solid #ddd;
+    padding: 15px 0;
+}
+
+.customer:last-child,
+.lead:last-child,
+.deal:last-child {
+    border-bottom: none;
+}
+
+
+/* ================= ACTIVITY ================= */
+
+.activity-item {
+    background: #f8f9fb;
+    border: 1px solid #e1e5ee;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 12px;
+}
+
+.activity-item h3 {
+    margin-top: 0;
+}
+
+.activity-item p {
+    color: #555;
+    margin: 6px 0;
+}
+
+.activity-item button {
+    width: auto;
+    padding: 8px 15px;
+}
+
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 1000px) {
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .quick-actions {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+@media (max-width: 700px) {
+
+    .sidebar {
+        width: 180px;
+    }
+
+    .main-content {
+        margin-left: 180px;
+        width: calc(100% - 180px);
+        padding: 20px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 500px) {
+
+    .sidebar {
+        position: static;
+        width: 100%;
+        min-height: auto;
+    }
+
+    .crm-layout {
+        display: block;
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+
+}

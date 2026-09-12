@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise CRM - Customers</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="crm-layout">
+
+    <aside class="sidebar">
+
+        <h2>Enterprise CRM</h2>
+        <p class="sidebar-user">CRM Management</p>
+
+        <nav>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="customers.html" class="active">Customers</a>
+            <a href="leads.html">Leads</a>
+            <a href="deals.html">Deals</a>
+            <a href="activities.html">Activity Logs</a>
+        </nav>
+
+        <button class="logout-btn" onclick="logout()">Logout</button>
+
+    </aside>
+
+
+    <main class="main-content">
+
+        <div class="dashboard-header">
+            <h1>Customers</h1>
+            <p>Manage customer information</p>
+        </div>
+
+
+        <!-- ADD CUSTOMER - ADMIN ONLY -->
+
+        <div class="card" id="addCustomerCard">
+
+            <h2>Add Customer</h2>
+
+            <form id="customerForm">
+
+                <label>Name</label>
+
+                <input
+                    type="text"
+                    id="customerName"
+                    placeholder="Enter customer name"
+                    required
+                >
+
+
+                <label>Email</label>
+
+                <input
+                    type="email"
+                    id="customerEmail"
+                    placeholder="Enter customer email"
+                    required
+                >
+
+
+                <label>Phone</label>
+
+                <input
+                    type="text"
+                    id="customerPhone"
+                    placeholder="Enter phone number"
+                    required
+                >
+
+
+                <label>Company</label>
+
+                <input
+                    type="text"
+                    id="customerCompany"
+                    placeholder="Enter company name"
+                    required
+                >
+
+
+                <button type="submit">
+                    Add Customer
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- CUSTOMER LIST -->
+
+        <div class="card">
+
+            <h2>Customer List</h2>
+
+            <div id="customerList">
+                Loading customers...
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<script>
+
+const userId = localStorage.getItem("userId");
+const userRole = localStorage.getItem("userRole");
+
+
+/* ================= LOGIN CHECK ================= */
+
+if (!userId) {
+
+    window.location.href = "index.html";
+
+}
+
+
+/* ================= HIDE ADMIN FEATURES FOR USER ================= */
+
+if (userRole !== "Admin") {
+
+    document.getElementById("addCustomerCard").style.display = "none";
+
+}
+
+
+/* ================= ADD CUSTOMER ================= */
+
+document.getElementById("customerForm").addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+
+        const name =
+            document.getElementById("customerName").value;
+
+        const email =
+            document.getElementById("customerEmail").value;
+
+        const phone =
+            document.getElementById("customerPhone").value;
+
+        const company =
+            document.getElementById("customerCompany").value;
+
+
+        try {
+
+            const response = await fetch(
+                "http://localhost:5000/api/customers",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        name: name,
+                        email: email,
+                        phone: phone,
+                        company: company
+                    })
+                }
+            );
+
+
+            const data = await response.json();
+
+
+            if (response.ok) {
+
+                alert("Customer added successfully!");
+
+                document.getElementById("customerForm").reset();
+
+                loadCustomers();
+
+            } else {
+
+                alert(
+                    data.message ||
+                    "Failed to add customer"
+                );
+
+            }
+
+        } catch (error) {
+
+            console.log("Add Customer Error:", error);
+
+            alert(
+                "Server error. Please check the backend."
+            );
+
+        }
+
+    }
+);
+
+
+/* ================= LOAD CUSTOMERS ================= */
+
+async function loadCustomers() {
+
+    try {
+
+        const response = await fetch(
+            "http://localhost:5000/api/customers"
+        );
+
+
+        const customers = await response.json();
+
+        const customerList =
+            document.getElementById("customerList");
+
+
+        if (customers.length === 0) {
+
+            customerList.innerHTML =
+                "<p>No customers found.</p>";
+
+            return;
+
+        }
+
+
+        customerList.innerHTML = "";
+
+
+        customers.forEach(function(customer) {
+
+            const customerDiv =
+                document.createElement("div");
+
+            customerDiv.className = "customer";
+
+
+            let buttons = "";
+
+
+            /* ADMIN ONLY BUTTONS */
+
+            if (userRole === "Admin") {
+
+                buttons = `
+
+                    <button
+                        onclick="editCustomer(
+                            '${customer._id}',
+                            '${customer.name}',
+                            '${customer.email}',
+                            '${customer.phone}',
+                            '${customer.company}'
+                        )">
+                        Edit
+                    </button>
+
+
+                    <button
+                        onclick="deleteCustomer('${customer._id}')">
+                        Delete
+                    </button>
+
+                `;
+
+            }
+
+
+            customerDiv.innerHTML = `
+
+                <h3>${customer.name}</h3>
+
+                <p>
+                    <strong>Email:</strong>
+                    ${customer.email}
+                </p>
+
+                <p>
+                    <strong>Phone:</strong>
+                    ${customer.phone}
+                </p>
+
+                <p>
+                    <strong>Company:</strong>
+                    ${customer.company}
+                </p>
+
+                ${buttons}
+
+            `;
+
+
+            customerList.appendChild(customerDiv);
+
+        });
+
+
+    } catch (error) {
+
+        console.log("Load Customers Error:", error);
+
+        document.getElementById("customerList").innerHTML =
+            "<p>Unable to load customers. Please check the backend.</p>";
+
+    }
+
+}
+
+
+/* ================= EDIT CUSTOMER ================= */
+
+async function editCustomer(
+    id,
+    oldName,
+    oldEmail,
+    oldPhone,
+    oldCompany
+) {
+
+
+    if (userRole !== "Admin") {
+
+        alert("Access denied. Admin only.");
+
+        return;
+
+    }
+
+
+    const name = prompt(
+        "Enter customer name:",
+        oldName
+    );
+
+    if (name === null) {
+        return;
+    }
+
+
+    const email = prompt(
+        "Enter customer email:",
+        oldEmail
+    );
+
+    if (email === null) {
+        return;
+    }
+
+
+    const phone = prompt(
+        "Enter customer phone:",
+        oldPhone
+    );
+
+    if (phone === null) {
+        return;
+    }
+
+
+    const company = prompt(
+        "Enter company name:",
+        oldCompany
+    );
+
+    if (company === null) {
+        return;
+    }
+
+
+    try {
+
+        const response = await fetch(
+            "http://localhost:5000/api/customers/" + id,
+            {
+                method: "PUT",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    company: company
+                })
+            }
+        );
+
+
+        const data = await response.json();
+
+
+        if (response.ok) {
+
+            alert("Customer updated successfully!");
+
+            loadCustomers();
+
+        } else {
+
+            alert(
+                data.message ||
+                "Failed to update customer"
+            );
+
+        }
+
+    } catch (error) {
+
+        console.log("Edit Customer Error:", error);
+
+        alert(
+            "Server error. Please check the backend."
+        );
+
+    }
+
+}
+
+
+/* ================= DELETE CUSTOMER ================= */
+
+async function deleteCustomer(id) {
+
+
+    if (userRole !== "Admin") {
+
+        alert("Access denied. Admin only.");
+
+        return;
+
+    }
+
+
+    const confirmDelete =
+        confirm(
+            "Are you sure you want to delete this customer?"
+        );
+
+
+    if (!confirmDelete) {
+        return;
+    }
+
+
+    try {
+
+        const response = await fetch(
+            "http://localhost:5000/api/customers/" + id,
+            {
+                method: "DELETE"
+            }
+        );
+
+
+        const data = await response.json();
+
+
+        if (response.ok) {
+
+            alert("Customer deleted successfully!");
+
+            loadCustomers();
+
+        } else {
+
+            alert(
+                data.message ||
+                "Failed to delete customer"
+            );
+
+        }
+
+    } catch (error) {
+
+        console.log("Delete Customer Error:", error);
+
+        alert(
+            "Server error. Please check the backend."
+        );
+
+    }
+
+}
+
+
+/* ================= LOGOUT ================= */
+
+function logout() {
+
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("userRole");
+
+    window.location.href = "index.html";
+
+}
+
+
+loadCustomers();
+
+</script>
+
+</body>
+
+</html>
